@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Confissão de Dívida Kalimed</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 24px;
+    }
+    h1 {
+      text-align: center;
+      color: #38bdf8;
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      margin-bottom: 28px;
+    }
+
+    /* KPIs */
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 18px;
+      border-left: 4px solid #38bdf8;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .kpi-card.green  { border-left-color: #22c55e; }
+    .kpi-card.yellow { border-left-color: #facc15; }
+    .kpi-card.red    { border-left-color: #f87171; }
+    .kpi-card.purple { border-left-color: #a78bfa; }
+    .kpi-label {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+    .kpi-sub {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .progress-title {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .progress-bar-bg {
+      background: #334155;
+      border-radius: 999px;
+      height: 22px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #38bdf8);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #0f172a;
+      transition: width 1s ease;
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    /* Charts grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    .chart-card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .chart-card h3 {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+    }
+    canvas { max-height: 280px; }
+
+    /* Tabela */
+    .table-card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      overflow-x: auto;
+    }
+    .table-card h3 {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    thead th {
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 10px 12px;
+      text-align: center;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tbody tr { border-bottom: 1px solid #334155; }
+    tbody tr:hover { background: #273449; }
+    tbody td {
+      padding: 8px 12px;
+      text-align: center;
+      color: #cbd5e1;
+    }
+    .badge-pago {
+      background: #14532d;
+      color: #4ade80;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-pendente {
+      background: #1e3a5f;
+      color: #7dd3fc;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-proximo {
+      background: #713f12;
+      color: #fde68a;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* Sacados */
+    .sacados-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    footer {
+      text-align: center;
+      color: #334155;
+      font-size: 0.75rem;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📋 PROPOSTA KALIMED — CONFISSÃO DE DÍVIDA</h1>
+<p class="subtitle">Dashboard de acompanhamento · Atualizado em 12/03/2026</p>
+
+<!-- KPIs -->
+<div class="kpis">
+  <div class="kpi-card">
+    <div class="kpi-label">Valor de Face</div>
+    <div class="kpi-value">R$ 33.935,00</div>
+    <div class="kpi-sub">Dívida original</div>
+  </div>
+  <div class="kpi-card yellow">
+    <div class="kpi-label">Juros Totais</div>
+    <div class="kpi-value">R$ 8.254,23</div>
+    <div class="kpi-sub">2% a.m. sobre os títulos</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="kpi-label">Multa Total</div>
+    <div class="kpi-value">R$ 3.393,50</div>
+    <div class="kpi-sub">10% sobre os títulos</div>
+  </div>
+  <div class="kpi-card purple">
+    <div class="kpi-label">Total Negociado</div>
+    <div class="kpi-value">R$ 45.582,73</div>
+    <div class="kpi-sub">Face + Juros + Multa</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-label">Parcelas Pagas</div>
+    <div class="kpi-value">1 / 52</div>
+    <div class="kpi-sub">R$ 1.000,00 pagos</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Saldo Devedor Atual</div>
+    <div class="kpi-value">R$ 44.810,64</div>
+    <div class="kpi-sub">Após parcela 1</div>
+  </div>
+  <div class="kpi-card yellow">
+    <div class="kpi-label">Total a Pagar</div>
+    <div class="kpi-value">R$ 51.861,30</div>
+    <div class="kpi-sub">Soma de todas as parcelas</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="kpi-label">Término</div>
+    <div class="kpi-value">05/03/2027</div>
+    <div class="kpi-sub">Parcela 52 · R$ 861,30</div>
+  </div>
+</div>
+
+<!-- Barra de progresso -->
+<div class="progress-wrap">
+  <div class="progress-title">📊 Progresso Geral do Pagamento</div>
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" style="width: 1.93%">1,93%</div>
+  </div>
+  <div class="progress-labels">
+    <span>✅ Pago: R$ 1.000,00</span>
+    <span>⏳ Restante: R$ 50.861,30</span>
+  </div>
+</div>
+
+<!-- Gráficos linha + barras empilhadas -->
+<div class="charts-grid">
+  <div class="chart-card">
+    <h3>📉 Evolução do Saldo Devedor</h3>
+    <canvas id="chartSaldo"></canvas>
+  </div>
+  <div class="chart-card">
+    <h3>📊 Amortização vs Juros por Parcela</h3>
+    <canvas id="chartAmort"></canvas>
+  </div>
+</div>
+
+<!-- Sacados + Pizza -->
+<div class="sacados-grid">
+  <div class="chart-card">
+    <h3>🏢 Composição por Sacado (Valor Original)</h3>
+    <canvas id="chartPizza"></canvas>
+  </div>
+  <div class="chart-card">
+    <h3>📅 Juros Acumulados ao Longo do Tempo</h3>
+    <canvas id="chartJurosAcum"></canvas>
+  </div>
+</div>
+
+<!-- Tabela de parcelas -->
+<div class="table-card">
+  <h3>📋 Tabela de Parcelas</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Vencimento</th>
+        <th>Saldo Inicial</th>
+        <th>Juros</th>
+        <th>Saldo Corrigido</th>
+        <th>Pagamento</th>
+        <th>Saldo Final</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaParcelas"></tbody>
+  </table>
+</div>
+
+<footer>Dashboard gerado para Kalimed · Confissão de Dívida · Taxa 0,50% a.s. (2% a.m. proporcional)</footer>
+
+<script>
+// ── DADOS ──────────────────────────────────────────────────────────────────
+const parcelas = [
+  {n:1,  v:"13/03/2026", si:45582.73, j:227.91, sc:45810.64, pg:1000, sf:44810.64},
+  {n:2,  v:"20/03/2026", si:44810.64, j:224.05, sc:45034.70, pg:1000, sf:44034.70},
+  {n:3,  v:"27/03/2026", si:44034.70, j:220.17, sc:44254.87, pg:1000, sf:43254.87},
+  {n:4,  v:"03/04/2026", si:43254.87, j:216.27, sc:43471.14, pg:1000, sf:42471.14},
+  {n:5,  v:"10/04/2026", si:42471.14, j:212.36, sc:42683.50, pg:1000, sf:41683.50},
+  {n:6,  v:"17/04/2026", si:41683.50, j:208.42, sc:41891.92, pg:1000, sf:40891.92},
+  {n:7,  v:"24/04/2026", si:40891.92, j:204.46, sc:41096.38, pg:1000, sf:40096.38},
+  {n:8,  v:"01/05/2026", si:40096.38, j:200.48, sc:40296.86, pg:1000, sf:39296.86},
+  {n:9,  v:"08/05/2026", si:39296.86, j:196.48, sc:39493.34, pg:1000, sf:38493.34},
+  {n:10, v:"15/05/2026", si:38493.34, j:192.47, sc:38685.81, pg:1000, sf:37685.81},
+  {n:11, v:"22/05/2026", si:37685.81, j:188.43, sc:37874.24, pg:1000, sf:36874.24},
+  {n:12, v:"29/05/2026", si:36874.24, j:184.37, sc:37058.61, pg:1000, sf:36058.61},
+  {n:13, v:"05/06/2026", si:36058.61, j:180.29, sc:36238.90, pg:1000, sf:35238.90},
+  {n:14, v:"12/06/2026", si:35238.90, j:176.19, sc:35415.10, pg:1000, sf:34415.10},
+  {n:15, v:"19/06/2026", si:34415.10, j:172.08, sc:34587.17, pg:1000, sf:33587.17},
+  {n:16, v:"26/06/2026", si:33587.17, j:167.94, sc:33755.11, pg:1000, sf:32755.11},
+  {n:17, v:"03/07/2026", si:32755.11, j:163.78, sc:32918.89, pg:1000, sf:31918.89},
+  {n:18, v:"10/07/2026", si:31918.89, j:159.59, sc:32078.48, pg:1000, sf:31078.48},
+  {n:19, v:"17/07/2026", si:31078.48, j:155.39, sc:31233.87, pg:1000, sf:30233.87},
+  {n:20, v:"24/07/2026", si:30233.87, j:151.17, sc:30385.04, pg:1000, sf:29385.04},
+  {n:21, v:"31/07/2026", si:29385.04, j:146.93, sc:29531.97, pg:1000, sf:28531.97},
+  {n:22, v:"07/08/2026", si:28531.97, j:142.66, sc:28674.63, pg:1000, sf:27674.63},
+  {n:23, v:"14/08/2026", si:27674.63, j:138.37, sc:27813.00, pg:1000, sf:26813.00},
+  {n:24, v:"21/08/2026", si:26813.00, j:134.07, sc:26947.06, pg:1000, sf:25947.06},
+  {n:25, v:"28/08/2026", si:25947.06, j:129.74, sc:26076.80, pg:1000, sf:25076.80},
+  {n:26, v:"04/09/2026", si:25076.80, j:125.38, sc:25202.18, pg:1000, sf:24202.18},
+  {n:27, v:"11/09/2026", si:24202.18, j:121.01, sc:24323.19, pg:1000, sf:23323.19},
+  {n:28, v:"18/09/2026", si:23323.19, j:116.62, sc:23439.81, pg:1000, sf:22439.81},
+  {n:29, v:"25/09/2026", si:22439.81, j:112.20, sc:22552.01, pg:1000, sf:21552.01},
+  {n:30, v:"02/10/2026", si:21552.01, j:107.76, sc:21659.77, pg:1000, sf:20659.77},
+  {n:31, v:"09/10/2026", si:20659.77, j:103.30, sc:20763.07, pg:1000, sf:19763.07},
+  {n:32, v:"16/10/2026", si:19763.07, j:98.82,  sc:19861.88, pg:1000, sf:18861.88},
+  {n:33, v:"23/10/2026", si:18861.88, j:94.31,  sc:18956.19, pg:1000, sf:17956.19},
+  {n:34, v:"30/10/2026", si:17956.19, j:89.78,  sc:18045.97, pg:1000, sf:17045.97},
+  {n:35, v:"06/11/2026", si:17045.97, j:85.23,  sc:17131.20, pg:1000, sf:16131.20},
+  {n:36, v:"13/11/2026", si:16131.20, j:80.66,  sc:16211.86, pg:1000, sf:15211.86},
+  {n:37, v:"20/11/2026", si:15211.86, j:76.06,  sc:15287.92, pg:1000, sf:14287.92},
+  {n:38, v:"27/11/2026", si:14287.92, j:71.44,  sc:14359.36, pg:1000, sf:13359.36},
+  {n:39, v:"04/12/2026", si:13359.36, j:66.80,  sc:13426.16, pg:1000, sf:12426.16},
+  {n:40, v:"11/12/2026", si:12426.16, j:62.13,  sc:12488.29, pg:1000, sf:11488.29},
+  {n:41, v:"18/12/2026", si:11488.29, j:57.44,  sc:11545.73, pg:1000, sf:10545.73},
+  {n:42, v:"25/12/2026", si:10545.73, j:52.73,  sc:10598.46, pg:1000, sf:9598.46},
+  {n:43, v:"01/01/2027", si:9598.46,  j:47.99,  sc:9646.45,  pg:1000, sf:8646.45},
+  {n:44, v:"08/01/2027", si:8646.45,  j:43.23,  sc:8689.68,  pg:1000, sf:7689.68},
+  {n:45, v:"15/01/2027", si:7689.68,  j:38.45,  sc:7728.13,  pg:1000, sf:6728.13},
+  {n:46, v:"22/01/2027", si:6728.13,  j:33.64,  sc:6761.77,  pg:1000, sf:5761.77},
+  {n:47, v:"29/01/2027", si:5761.77,  j:28.81,  sc:5790.58,  pg:1000, sf:4790.58},
+  {n:48, v:"05/02/2027", si:4790.58,  j:23.95,  sc:4814.53,  pg:1000, sf:3814.53},
+  {n:49, v:"12/02/2027", si:3814.53,  j:19.07,  sc:3833.60,  pg:1000, sf:2833.60},
+  {n:50, v:"19/02/2027", si:2833.60,  j:14.17,  sc:2847.77,  pg:1000, sf:1847.77},
+  {n:51, v:"26/02/2027", si:1847.77,  j:9.24,   sc:1857.01,  pg:1000, sf:857.01},
+  {n:52, v:"05/03/2027", si:857.01,   j:4.29,   sc:861.30,   pg:861.30, sf:0.00},
+];
+
+const hoje = new Date("2026-03-12");
+
+function parseDate(str) {
+  const [d,m,y] = str.split("/");
+  return new Date(`${y}-${m}-${d}`);
+}
+
+function fmt(v) {
+  return "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// ── STATUS ─────────────────────────────────────────────────────────────────
+function getStatus(vStr) {
+  const d = parseDate(vStr);
+  const diff = Math.round((d - hoje) / 86400000);
+  if (diff < 0) return '<span class="badge-pago">✅ Pago</span>';
+  if (diff <= 7) return '<span class="badge-proximo">⚡ Próximo</span>';
+  return '<span class="badge-pendente">⏳ Pendente</span>';
+}
+
+// ── TABELA ─────────────────────────────────────────────────────────────────
+const tbody = document.getElementById("tabelaParcelas");
+parcelas.forEach(p => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${p.n}</td>
+    <td>${p.v}</td>
+    <td>${fmt(p.si)}</td>
+    <td style="color:#fbbf24">${fmt(p.j)}</td>
+    <td>${fmt(p.sc)}</td>
+    <td style="color:#4ade80">${fmt(p.pg)}</td>
+    <td style="color:#38bdf8">${fmt(p.sf)}</td>
+    <td>${getStatus(p.v)}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// ── LABELS E DADOS ─────────────────────────────────────────────────────────
+const labels = parcelas.map(p => p.v);
+const saldos = parcelas.map(p => p.sf);
+const juros  = parcelas.map(p => p.j);
+const amort  = parcelas.map(p => parseFloat((p.pg - p.j).toFixed(2)));
+
+// Juros acumulados
+let acum = 0;
+const jurosAcum = parcelas.map(p => { acum += p.j; return parseFloat(acum.toFixed(2)); });
+
+// ── GRÁFICO 1 — Saldo Devedor ──────────────────────────────────────────────
+new Chart(document.getElementById("chartSaldo"), {
+  type: "line",
+  data: {
+    labels,
+    datasets: [{
+      label: "Saldo Devedor (R$)",
+      data: saldos,
+      borderColor: "#38bdf8",
+      backgroundColor: "rgba(56,189,248,0.08)",
+      fill: true,
+      tension: 0.4,
+      pointRadius: 2,
+      pointHoverRadius: 5,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: "#94a3b8", font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: ctx => " " + fmt(ctx.parsed.y)
+        }
+      }
+    },
+    scales: {
+      x: { ticks: { color: "#64748b", maxTicksLimit: 12, font:{size:10} }, grid: { color: "#1e293b" } },
+      y: { ticks: { color: "#64748b", callback: v => "R$" + (v/1000).toFixed(0)+"k" }, grid: { color: "#334155" } }
+    }
+  }
+});
+
+// ── GRÁFICO 2 — Amortização vs Juros ──────────────────────────────────────
+new Chart(document.getElementById("chartAmort"), {
+  type: "bar",
+  data: {
+    labels,
+    datasets: [
+      {
+        label: "Amortização",
+        data: amort,
+        backgroundColor: "rgba(34,197,94,0.75)",
+        borderRadius: 3,
+      },
+      {
+        label: "Juros",
+        data: juros,
+        backgroundColor: "rgba(251,191,36,0.75)",
+        borderRadius: 3,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: "#94a3b8", font:{size:11} } },
+      tooltip: {
+        callbacks: { label: ctx => " " + fmt(ctx.parsed.y) }
+      }
+    },
+    scales: {
+      x: { stacked: true, ticks: { color: "#64748b", maxTicksLimit: 12, font:{size:10} }, grid: { color: "#1e293b" } },
+      y: { stacked: true, ticks: { color: "#64748b", callback: v => "R$"+v }, grid: { color: "#334155" } }
+    }
+  }
+});
+
+// ── GRÁFICO 3 — Pizza Sacados ──────────────────────────────────────────────
+new Chart(document.getElementById("chartPizza"), {
+  type: "doughnut",
+  data: {
+    labels: [
+      "MJP Descartáveis (3x)",
+      "Delza A. Freitas (4x)",
+      "Tudolimp Limpeza",
+      "M G Moura Confecções"
+    ],
+    datasets: [{
+      data: [8050, 3240, 1000, 21645],
+      backgroundColor: ["#38bdf8","#a78bfa","#fbbf24","#f87171"],
+      borderColor: "#0f172a",
+      borderWidth: 3,
+      hoverOffset: 10,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: "bottom", labels: { color: "#94a3b8", font:{size:11}, padding:12 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => " " + ctx.label + ": " + fmt(ctx.parsed)
+        }
+      }
+    }
+  }
+});
+
+// ── GRÁFICO 4 — Juros Acumulados ───────────────────────────────────────────
+new Chart(document.getElementById("chartJurosAcum"), {
+  type: "line",
+  data: {
+    labels,
+    datasets: [{
+      label: "Juros Acumulados (R$)",
+      data: jurosAcum,
+      borderColor: "#fbbf24",
+      backgroundColor: "rgba(251,191,36,0.08)",
+      fill: true,
+      tension: 0.4,
+      pointRadius: 2,
+      pointHoverRadius: 5,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: "#94a3b8", font:{size:11} } },
+      tooltip: {
+        callbacks: { label: ctx => " " + fmt(ctx.parsed.y) }
+      }
+    },
+    scales: {
+      x: { ticks: { color: "#64748b", maxTicksLimit: 12, font:{size:10} }, grid: { color: "#1e293b" } },
+      y: { ticks: { color: "#64748b", callback: v => "R$"+v }, grid: { color: "#334155" } }
+    }
+  }
+});
+</script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
+</html>
