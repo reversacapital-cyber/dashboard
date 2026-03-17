@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reversa Capital — Parecer de Carteira</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --navy:       #1a2840;
+      --navy2:      #243350;
+      --bg:         #f2f5f9;
+      --surface:    #ffffff;
+      --surface2:   #f8fafc;
+      --border:     #e2e8f0;
+      --accent:     #2563b0;
+      --accent2:    #3a7bd5;
+      --gold:       #c8a84b;
+      --gold-lt:    #dfc06a;
+      --text:       #1e2d3d;
+      --muted:      #64748b;
+      --white:      #ffffff;
+      --p20-main:   #d97a00;
+      --p20-dark:   #b86500;
+      --p30-main:   #7b46c0;
+      --p30-dark:   #5e32a0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══ PAGE ══ */
+    .page {
+      max-width: 920px;
+      margin: 36px auto;
+      background: var(--surface);
+      box-shadow: 0 4px 40px rgba(0,0,0,0.10);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    /* ══ HEADER ══ */
+    .header {
+      background: linear-gradient(150deg, var(--navy) 0%, var(--navy2) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      right: -60px; top: -60px;
+      width: 340px; height: 340px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(74,127,193,0.14) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      left: 28%; bottom: -50px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,168,75,0.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .header-inner {
+      position: relative;
+      z-index: 1;
+      padding: 36px 52px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand h1 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 5px;
+      color: var(--white);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .brand .tagline {
+      font-size: 9px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-top: 8px;
+      font-weight: 400;
+    }
+
+    .doc-date-wrap .doc-date {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      font-weight: 300;
+      text-align: right;
+    }
+
+    /* Faixa dourada */
+    .gold-stripe {
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 100%);
+      padding: 9px 52px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #1a1500;
+    }
+
+    /* ══ CORPO ══ */
+    .body { padding: 44px 52px; background: var(--surface); }
+
+    /* Parties */
+    .parties {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 30px;
+      margin-bottom: 34px;
+      border-bottom: 1px solid var(--border);
+    }
+    .party-block h4 {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .party-block strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .party-block p {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* Intro */
+    .intro {
+      background: #f0f6ff;
+      border: 1px solid #c7ddf5;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 18px 22px;
+      margin-bottom: 38px;
+      font-size: 13.5px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    /* Seção */
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .sec-head .sec-label {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .sec-head .sec-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ══ CARDS ══ */
+    .cases {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 42px;
+    }
+
+    .case-card {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .case-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.09);
+      transform: translateY(-1px);
+    }
+
+    .cc-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 20px;
+      gap: 12px;
+    }
+    .cc-head.h20 {
+      background: linear-gradient(90deg, #fff4e5 0%, #fffbf5 100%);
+      border-bottom: 2px solid #f0a030;
+    }
+    .cc-head.h30 {
+      background: linear-gradient(90deg, #f5f0ff 0%, #fbf8ff 100%);
+      border-bottom: 2px solid #9b6dd6;
+    }
+
+    .cc-left { display: flex; align-items: center; gap: 12px; }
+
+    .cc-num {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800;
+      flex-shrink: 0; color: white;
+    }
+    .h20 .cc-num { background: linear-gradient(135deg, var(--p20-main), var(--p20-dark)); }
+    .h30 .cc-num { background: linear-gradient(135deg, var(--p30-main), var(--p30-dark)); }
+
+    .cc-name { font-size: 13px; font-weight: 700; }
+    .h20 .cc-name { color: #8a4e00; }
+    .h30 .cc-name { color: #4a2090; }
+
+    .cc-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+
+    .cc-value {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .pct-badge {
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      color: white;
+      white-space: nowrap;
+    }
+    .pct20 { background: linear-gradient(135deg, var(--p20-main), var(--p20-dark)); }
+    .pct30 { background: linear-gradient(135deg, var(--p30-main), var(--p30-dark)); }
+
+    .cc-body {
+      padding: 16px 20px;
+      background: var(--surface2);
+    }
+
+    .comp-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 11px;
+    }
+    .ct-baixa { background: #e8f5e9; color: #1e7a28; border: 1px solid #b6debb; }
+    .ct-inter { background: #fff4e0; color: #9a5200; border: 1px solid #f5cc80; }
+    .ct-alta  { background: #fdecea; color: #991b2f; border: 1px solid #f5b8be; }
+
+    .cc-parecer {
+      font-size: 13.5px;
+      color: #334155;
+      line-height: 1.78;
+    }
+
+    .sol-box {
+      margin-top: 14px;
+      background: #f0f6ff;
+      border: 1px solid #c7ddf5;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .sol-box h5 {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .sol-box ol {
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .sol-box li {
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.68;
+    }
+
+    /* ══ TOTAIS ══ */
+    .totais {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      border-radius: 10px;
+      padding: 26px 32px;
+      margin-bottom: 42px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .totais::before {
+      content: '';
+      position: absolute;
+      right: -40px; top: -40px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,168,75,0.10) 0%, transparent 70%);
+    }
+    .tot-item { text-align: center; position: relative; z-index: 1; }
+    .tot-val {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--white);
+    }
+    .tot-lbl {
+      font-size: 9.5px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-top: 6px;
+    }
+    .tot-sep {
+      width: 1px; height: 42px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    /* ══ CRITÉRIOS ══ */
+    .crit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 42px;
+    }
+    .crit-card {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .crit-head {
+      padding: 11px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+    }
+    .crit-head.ch20 { background: linear-gradient(90deg, var(--p20-main), var(--p20-dark)); }
+    .crit-head.ch30 { background: linear-gradient(90deg, var(--p30-main), var(--p30-dark)); }
+    .crit-body {
+      padding: 15px 16px;
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.72;
+      background: var(--surface2);
+    }
+
+    /* ══ CONDIÇÕES ══ */
+    .cond-list { list-style: none; }
+    .cond-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: #334155;
+    }
+    .cond-list li:last-child { border-bottom: none; }
+    .cond-chk {
+      min-width: 19px; height: 19px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800;
+      flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* ══ FOOTER ══ */
+    .footer {
+      background: var(--navy);
+      padding: 18px 52px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .footer-brand {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    .footer-info { text-align: right; }
+    .footer-info p {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      line-height: 1.7;
+    }
+    .footer-info a {
+      color: var(--gold-lt);
+      text-decoration: none;
+      font-size: 11px;
+    }
+
+    /* ══ PRINT ══ */
+    @media print {
+      body { background: white; }
+      .page { box-shadow: none; margin: 0; border-radius: 0; max-width: 100%; }
+    }
+
+    /* ══ MOBILE ══ */
+    @media (max-width: 660px) {
+      .header-inner { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+      .gold-stripe  { padding: 9px 24px; }
+      .body         { padding: 28px 24px; }
+      .parties      { flex-direction: column; }
+      .crit-grid    { grid-template-columns: 1fr; }
+      .cc-head      { flex-direction: column; align-items: flex-start; }
+      .totais       { flex-direction: column; }
+      .tot-sep      { display: none; }
+      .footer       { flex-direction: column; text-align: center; padding: 18px 24px; }
+      .footer-info  { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ══ HEADER ══ -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <h1>Reversa Capital</h1>
+        <div class="tagline">Serviços de Cobrança e Recuperação de Crédito</div>
+      </div>
+      <div class="doc-date-wrap">
+        <div class="doc-date" id="doc-date"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Faixa dourada -->
+  <div class="gold-stripe">Precificação de comissionamento — Casos Recebidos</div>
+
+  <!-- ══ CORPO ══ -->
+  <div class="body">
+
+    <!-- Parties — ÚNICA ALTERAÇÃO: destinatário agora usa a mesma estrutura do "Emitido por" -->
+    <div class="parties">
+      <div class="party-block">
+        <h4>Destinatário</h4>
+        <strong>Ignis Consultoria Credito e Cobrança Ltda</strong>
+        <p>CNPJ: 33.850.031/0001-90<br>
+           Rua Paraibuna, 811, cjs. 1403/1404<br>
+           Jardim São Dimas – São José dos Campos, SP<br>
+           CEP: 12245-020</p>
+      </div>
+      <div class="party-block" style="text-align:right">
+        <h4>Emitido por</h4>
+        <strong>Reversa Capital Ltda</strong>
+        <p>CNPJ: 60.709.638/0001-28<br>
+           Rua Dr. Luiz Palmier, 344 – Barreto<br>
+           Niterói – RJ</p>
+      </div>
+    </div>
+
+    <!-- Intro -->
+    <div class="intro">
+      Prezado <strong>Marcio</strong>,<br><br>
+      Apresentamos as informações e a precificação referentes aos casos recebidos para cobrança e recuperação de crédito. Informamos que os trabalhos serão conduzidos de maneira contínua e diligente, independentemente da natureza do acordo estabelecido, até a liquidação integral do débito ou o esgotamento de todas as alternativas extrajudiciais. Caso seja necessária a adoção de medidas judiciais, a Reversa Capital permanece à disposição para prestar o suporte necessário ao departamento jurídico.
+    </div>
+
+    <!-- Casos -->
+    <div class="sec-head">
+      <span class="sec-label">Pareceres por Caso</span>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="cases">
+
+      <!-- 1 ── A.S.W MODAS -->
+      <div class="case-card">
+        <div class="cc-head h20">
+          <div class="cc-left">
+            <div class="cc-num">1</div>
+            <div class="cc-name">A.S.W MODAS LTDA</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-value">R$ 31.688,71</div>
+            <span class="pct-badge pct20">20%</span>
+          </div>
+        </div>
+        <div class="cc-body">
+          <span class="comp-tag ct-inter">⚡ Complexidade Intermediária</span>
+          <p class="cc-parecer">
+            A empresa encontra-se em funcionamento, porém com significativas dificuldades de caixa, sendo esta a <strong>segunda repactuação</strong> da dívida. O histórico de inadimplência reincidente exige atuação incisiva, com monitoramento constante do cedente para garantir o cumprimento do novo acordo.
+          </p>
+        </div>
+      </div>
+
+      <!-- 2 ── EQUIPATEK -->
+      <div class="case-card">
+        <div class="cc-head h30">
+          <div class="cc-left">
+            <div class="cc-num">2</div>
+            <div class="cc-name">EQUIPATEK FERRAMENTAS LTDA</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-value">R$ 71.227,54</div>
+            <span class="pct-badge pct30">30%</span>
+          </div>
+        </div>
+        <div class="cc-body">
+          <span class="comp-tag ct-alta">🔴 Alta Complexidade</span>
+          <p class="cc-parecer">
+            Cedente altamente endividado, com emissão comprovada de títulos sem lastro e na condição de
+            <strong>réu confesso</strong>. Apesar de ter sido pontuada data de pagamento e prazo para
+            início da solução, as tratativas conduzidas <em>in loco</em> são de alta complexidade.
+            As soluções estudadas para recuperação do crédito são:
+          </p>
+          <div class="sol-box">
+            <h5>Soluções em Estudo</h5>
+            <ol>
+              <li><strong>Parcelamento</strong> — negociação de plano de pagamento compatível com a capacidade financeira atual do cedente.</li>
+              <li><strong>Fomento de pedidos reais com venda casada</strong> — confirmação pessoal dos pedidos, retirada do material no fornecedor e entrega com nota da Equipatek, que recomprará o fomento. Será repassada comissão de <strong>20% do líquido da operação</strong> à captadora dos pedidos, mediante formalização pelo sacado e avaliação do fundo.</li>
+              <li><strong>Dação em pagamento por estoque</strong> — o cedente enviará tabela do estoque disponível para realocação junto a clientes ou contatos do fundo, liquidando parcial ou totalmente a dívida.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 ── FAMAS -->
+      <div class="case-card">
+        <div class="cc-head h30">
+          <div class="cc-left">
+            <div class="cc-num">3</div>
+            <div class="cc-name">FAMAS EMBALAGENS LTDA</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-value">R$ 330.098,12</div>
+            <span class="pct-badge pct30">30%</span>
+          </div>
+        </div>
+        <div class="cc-body">
+          <span class="comp-tag ct-alta">🔴 Alta Complexidade</span>
+          <p class="cc-parecer">
+            Caso de alta complexidade, sem solução imediata. O processo encontra-se atualmente em fase de investigação, com levantamento de informações junto a ex-funcionários e demais envolvidos no operacional do cedente para subsidiar a estratégia de recuperação. O encaminhamento da solução dependerá dos resultados apurados nessa etapa.
+          </p>
+        </div>
+      </div>
+
+      <!-- 4 ── KALIMED -->
+      <div class="case-card">
+        <div class="cc-head h20">
+          <div class="cc-left">
+            <div class="cc-num">4</div>
+            <div class="cc-name">KALIMED INDÚSTRIA E COMÉRCIO DE PRODUTOS HOSPITALARES LTDA</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-value">R$ 33.935,00</div>
+            <span class="pct-badge pct20">20%</span>
+          </div>
+        </div>
+        <div class="cc-body">
+          <span class="comp-tag ct-baixa">🟢 Complexidade Média-Baixa</span>
+          <p class="cc-parecer">
+            O cedente, na figura do novo sócio, apresentou baixa resistência à adesão, demonstrando disposição para regularização. A complexidade reduzida permite abordagem mais administrativa, com boas perspectivas de resolução em prazo mais curto em relação aos demais casos da carteira.
+          </p>
+        </div>
+      </div>
+
+      <!-- 5 ── M. CUBA -->
+      <div class="case-card">
+        <div class="cc-head h30">
+          <div class="cc-left">
+            <div class="cc-num">5</div>
+            <div class="cc-name">M. CUBA COMÉRCIO DE COUROS E ARTEFATOS LTDA</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-value">R$ 67.644,08</div>
+            <span class="pct-badge pct30">30%</span>
+          </div>
+        </div>
+        <div class="cc-body">
+          <span class="comp-tag ct-alta">🔴 Alta Complexidade</span>
+          <p class="cc-parecer">
+            Cedente com baixa ou inerte atividade comercial e endividamento elevado. O cenário de retração operacional e baixa adesão dificulta a recuperação. Cobrança in-loco extremamente necessária para efetiva solução.
+          </p>
+        </div>
+      </div>
+
+      <!-- 6 ── MATHEUS MANRIQUE -->
+      <div class="case-card">
+        <div class="cc-head h20">
+          <div class="cc-left">
+            <div class="cc-num">6</div>
+            <div class="cc-name">MATHEUS MANRIQUE DE LIMA</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-value">R$ 5.275,12</div>
+            <span class="pct-badge pct20">20%</span>
+          </div>
+        </div>
+        <div class="cc-body">
+          <span class="comp-tag ct-alta">🔴 Alta Complexidade</span>
+          <p class="cc-parecer">
+            O devedor apresenta dificuldade de adesão ao processo de negociação, porém as tratativas seguem em andamento junto aos sacados.
+          </p>
+        </div>
+      </div>
+
+      <!-- 7 ── METAL VALE -->
+      <div class="case-card">
+        <div class="cc-head h30">
+          <div class="cc-left">
+            <div class="cc-num">7</div>
+            <div class="cc-name">METAL VALE — COMÉRCIO DE FERRO E AÇO LTDA</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-value">R$ 151.116,82</div>
+            <span class="pct-badge pct30">30%</span>
+          </div>
+        </div>
+        <div class="cc-body">
+          <span class="comp-tag ct-alta">🔴 Alta Complexidade</span>
+          <p class="cc-parecer">
+            Cedente fechou e possui alto nível de endividamento, além de sócios ocultos. Negociações diretamente com os sacados que já foram identificados como laranjas, participantes na fraude. Investigação segue em andamento.
+          </p>
+        </div>
+      </div>
+
+      <!-- 8 ── MJ COMPANY -->
+      <div class="case-card">
+        <div class="cc-head h30">
+          <div class="cc-left">
+            <div class="cc-num">8</div>
+            <div class="cc-name">MJ COMPANY — DISTRIBUIDORA DE ALIMENTOS LTDA</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-value">R$ 164.658,68</div>
+            <span class="pct-badge pct30">30%</span>
+          </div>
+        </div>
+        <div class="cc-body">
+          <span class="comp-tag ct-alta">🔴 Alta Complexidade</span>
+          <p class="cc-parecer">
+            Cedente de alta complexidade com grande falta de interesse em resolver a situação. As negociações estão em andamento, com possibilidades de dação em pagamento ou parcelamento.
+          </p>
+        </div>
+      </div>
+
+      <!-- 9 ── PAULO SERGIO -->
+      <div class="case-card">
+        <div class="cc-head h30">
+          <div class="cc-left">
+            <div class="cc-num">9</div>
+            <div class="cc-name">PAULO SERGIO BATISTUCCI LTDA</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-value">R$ 166.740,00</div>
+            <span class="pct-badge pct30">30%</span>
+          </div>
+        </div>
+        <div class="cc-body">
+          <span class="comp-tag ct-alta">🔴 Alta Complexidade</span>
+          <p class="cc-parecer">
+            Cedente de alta complexidade e iminente falta de interesse em resolver. Necessário o acompanhamento de novas operações com retenção (performance, liquidez, etc) e fluxo das mesmas, bem como o novo risco. Necessária presença in-loco constante.
+          </p>
+        </div>
+      </div>
+
+    </div><!-- /cases -->
+
+    <!-- ══ TOTAIS ══ -->
+    <div class="totais">
+      <div class="tot-item">
+        <div class="tot-val">9</div>
+        <div class="tot-lbl">Casos Recebidos</div>
+      </div>
+      <div class="tot-sep"></div>
+      <div class="tot-item">
+        <div class="tot-val">R$ 1.002.384,07</div>
+        <div class="tot-lbl">Valor Total da Carteira</div>
+      </div>
+      <div class="tot-sep"></div>
+      <div class="tot-item">
+        <div class="tot-val">4 casos</div>
+        <div class="tot-lbl">Honorários de 20%</div>
+      </div>
+      <div class="tot-sep"></div>
+      <div class="tot-item">
+        <div class="tot-val">5 casos</div>
+        <div class="tot-lbl">Honorários de 30%</div>
+      </div>
+    </div>
+
+    <!-- ══ CRITÉRIOS ══ -->
+    <div class="sec-head">
+      <span class="sec-label">Critérios de Precificação</span>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="crit-grid">
+      <div class="crit-card">
+        <div class="crit-head ch20">20% — Complexidade Intermediária</div>
+        <div class="crit-body">
+          Aplicado nos casos em que o devedor demonstra alguma disposição para negociação ou apresenta perfil de menor resistência, porém com histórico de inadimplência ou necessidade de atuação mais intensa que a cobrança padrão. Inclui casos de segunda repactuação, devedores com dificuldade de adesão em negociação ativa e situações com complexidade operacional moderada.
+        </div>
+      </div>
+      <div class="crit-card">
+        <div class="crit-head ch30">30% — Alta Complexidade</div>
+        <div class="crit-body">
+          Reservado para os casos de <strong>maior dificuldade operacional</strong>: devedores com inerte atividade comercial, alto endividamento, falta de interesse em resolver, necessidade de investigação patrimonial, estruturação de soluções alternativas (dação em pagamento, fomento, venda casada) ou acompanhamento contínuo de operações e fluxo financeiro do cedente.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONDIÇÕES ══ -->
+    <div class="sec-head" style="margin-top:8px">
+      <span class="sec-label">Condições Gerais</span>
+      <div class="sec-line"></div>
+    </div>
+
+    <ul class="cond-list">
+      <li>
+        <div class="cond-chk">✓</div>
+        O comissionamento incide <strong>exclusivamente sobre os valores efetivamente recuperados.</strong>
+      </li>
+      <li>
+        <div class="cond-chk">✓</div>
+        O percentual é calculado sobre o valor líquido recebido pelo cliente (principal + multa e juros).
+      </li>
+      <li>
+        <div class="cond-chk">✓</div>
+        Relatórios de andamento serão disponibilizados periodicamente para cada caso.
+      </li>
+    </ul>
+
+  </div><!-- /body -->
+
+  <!-- ══ FOOTER ══ -->
+  <div class="footer">
+    <div class="footer-brand">Reversa Capital</div>
+    <div class="footer-info">
+      <p>CNPJ 60.709.638/0001-28 · Niterói – RJ</p>
+      <a href="https://reversacapital.vercel.app/sitenovo.html" target="_blank">reversacapital.com.br</a>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  const d = new Date();
+  document.getElementById('doc-date').textContent =
+    'Niterói, ' + d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+</script>
+
+</body>
+</html>
