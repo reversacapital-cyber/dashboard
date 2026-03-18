@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NexoBridge | Intermediação de Negócios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #0a2540;
+      --accent: #f0a500;
+      --light: #f5f7fa;
+      --white: #ffffff;
+      --gray: #6b7280;
+      --dark: #111827;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--dark); background: var(--white); overflow-x: hidden; }
+
+    /* ── ANIMAÇÕES ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInLeft {
+      from { opacity: 0; transform: translateX(-40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse-ring {
+      0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(240,165,0,0.4); }
+      70%  { transform: scale(1);    box-shadow: 0 0 0 14px rgba(240,165,0,0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(240,165,0,0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-10px); }
+    }
+    @keyframes countUp {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+    .delay-5 { transition-delay: 0.5s; }
+    .delay-6 { transition-delay: 0.6s; }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 1000;
+      background: rgba(10, 37, 64, 0.97);
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 6%; height: 70px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+      transition: background 0.3s;
+    }
+    nav.scrolled { background: rgba(10,37,64,1); }
+
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: var(--accent); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 800; color: var(--primary);
+      animation: pulse-ring 2.5s infinite;
+    }
+    .logo-text { font-size: 1.4rem; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+    .logo-text span { color: var(--accent); }
+
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,0.8); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500; transition: color 0.2s;
+      position: relative; padding-bottom: 4px;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px; background: var(--accent);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      background: var(--accent) !important; color: var(--primary) !important;
+      padding: 9px 20px; border-radius: 8px; font-weight: 700 !important;
+    }
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover { opacity: 0.88; }
+
+    /* Hamburguer */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 26px; height: 2px;
+      background: var(--white); border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+    .mobile-menu {
+      display: none; position: fixed;
+      top: 70px; left: 0; width: 100%;
+      background: var(--primary); z-index: 999;
+      flex-direction: column; padding: 20px 6%;
+      gap: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: rgba(255,255,255,0.85); text-decoration: none;
+      font-size: 1rem; font-weight: 500; padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .mobile-menu a:last-child { border-bottom: none; color: var(--accent); font-weight: 700; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 0%, #1a3f6f 60%, #0d3257 100%);
+      display: flex; align-items: center;
+      padding: 120px 6% 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-particles {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: rgba(240,165,0,0.08);
+      animation: float linear infinite;
+    }
+
+    #hero::before {
+      content: ''; position: absolute; top: -30%; right: -10%;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(240,165,0,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-content {
+      max-width: 660px; position: relative; z-index: 1;
+      animation: fadeInUp 0.9s ease forwards;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(240,165,0,0.15); border: 1px solid rgba(240,165,0,0.3);
+      color: var(--accent); padding: 6px 14px; border-radius: 50px;
+      font-size: 0.8rem; font-weight: 600; margin-bottom: 24px;
+    }
+    .hero-content h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 800;
+      color: var(--white); line-height: 1.15; margin-bottom: 20px;
+    }
+    .hero-content h1 span { color: var(--accent); }
+    .hero-content p {
+      font-size: 1.1rem; color: rgba(255,255,255,0.75);
+      line-height: 1.7; margin-bottom: 36px; max-width: 520px;
+    }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: var(--accent); color: var(--primary);
+      padding: 14px 28px; border-radius: var(--radius);
+      font-weight: 700; font-size: 0.95rem; text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(240,165,0,0.4);
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(240,165,0,0.5); }
+
+    .btn-outline {
+      border: 2px solid rgba(255,255,255,0.4); color: var(--white);
+      padding: 14px 28px; border-radius: var(--radius);
+      font-weight: 600; font-size: 0.95rem; text-decoration: none;
+      transition: border-color 0.2s, background 0.2s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-outline:hover { border-color: var(--accent); background: rgba(240,165,0,0.08); }
+
+    .hero-stats {
+      display: flex; gap: 40px; margin-top: 56px; flex-wrap: wrap;
+    }
+    .stat-number {
+      font-size: 2rem; font-weight: 800; color: var(--accent); line-height: 1;
+    }
+    .stat-label { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: 4px; }
+
+    /* ── SECTIONS ── */
+    section { padding: 90px 6%; }
+
+    .section-tag {
+      display: inline-block; background: rgba(240,165,0,0.1);
+      color: var(--accent); border: 1px solid rgba(240,165,0,0.25);
+      padding: 5px 14px; border-radius: 50px;
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: clamp(1.7rem, 3.5vw, 2.5rem); font-weight: 800;
+      color: var(--primary); line-height: 1.2; margin-bottom: 14px;
+    }
+    .section-sub { font-size: 1rem; color: var(--gray); max-width: 560px; line-height: 1.7; }
+    .section-header { margin-bottom: 56px; }
+
+    /* ── SOBRE ── */
+    #sobre { background: var(--light); }
+
+    .sobre-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .sobre-img {
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--primary), #1a3f6f);
+      min-height: 420px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      animation: float 5s ease-in-out infinite;
+    }
+    .sobre-img-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; padding: 32px; width: 100%;
+    }
+    .sobre-card {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 20px; text-align: center;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .sobre-card:hover { background: rgba(255,255,255,0.14); transform: scale(1.03); }
+    .sobre-card i { font-size: 1.8rem; color: var(--accent); margin-bottom: 8px; }
+    .sobre-card p { font-size: 0.78rem; color: rgba(255,255,255,0.8); font-weight: 500; }
+
+    .sobre-text .section-sub { max-width: 100%; margin-bottom: 24px; }
+    .sobre-text ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .sobre-text ul li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.95rem; color: var(--dark);
+    }
+    .sobre-text ul li i { color: var(--accent); margin-top: 3px; flex-shrink: 0; }
+
+    /* SP BADGE */
+    .sp-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--primary); color: var(--white);
+      padding: 8px 16px; border-radius: 50px;
+      font-size: 0.82rem; font-weight: 600; margin-top: 20px;
+    }
+    .sp-badge i { color: var(--accent); }
+
+    /* ── SEGMENTOS ── */
+    #segmentos { background: var(--white); }
+
+    .segmentos-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+    }
+    .seg-card {
+      border: 1.5px solid #e5e7eb; border-radius: var(--radius);
+      padding: 32px 24px; transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      cursor: default;
+    }
+    .seg-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 8px 30px rgba(240,165,0,0.12);
+      transform: translateY(-6px);
+    }
+    .seg-icon {
+      width: 52px; height: 52px; background: rgba(10,37,64,0.06);
+      border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; font-size: 1.4rem; color: var(--primary);
+      margin-bottom: 18px; transition: background 0.3s, color 0.3s, transform 0.3s;
+    }
+    .seg-card:hover .seg-icon { background: var(--accent); color: var(--primary); transform: rotate(6deg) scale(1.1); }
+    .seg-card h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .seg-card p { font-size: 0.85rem; color: var(--gray); line-height: 1.6; }
+
+    /* ── COMO FUNCIONA ── */
+    #como-funciona { background: var(--light); }
+
+    .steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 32px;
+    }
+    .step {
+      background: var(--white); border-radius: var(--radius);
+      padding: 32px 24px; position: relative;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .step:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); }
+    .step-num {
+      width: 40px; height: 40px; background: var(--primary);
+      color: var(--accent); font-weight: 800; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; margin-bottom: 18px;
+    }
+    .step h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .step p { font-size: 0.87rem; color: var(--gray); line-height: 1.6; }
+
+    /* ── EQUIPE ── */
+    #equipe { background: var(--white); }
+
+    .team-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 28px;
+    }
+    .team-card {
+      border-radius: var(--radius); overflow: hidden;
+      border: 1.5px solid #e5e7eb;
+      transition: box-shadow 0.3s, transform 0.3s;
+      position: relative;
+    }
+    .team-card:hover { box-shadow: 0 14px 40px rgba(0,0,0,0.12); transform: translateY(-6px); }
+
+    .team-avatar {
+      height: 220px; overflow: hidden; position: relative;
+    }
+    .team-avatar img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s;
+      filter: grayscale(10%);
+    }
+    .team-card:hover .team-avatar img { transform: scale(1.06); filter: grayscale(0%); }
+
+    .team-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,37,64,0.7) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+      display: flex; align-items: flex-end; padding: 16px;
+    }
+    .team-card:hover .team-overlay { opacity: 1; }
+    .team-overlay-links { display: flex; gap: 10px; }
+    .team-overlay-links a {
+      width: 34px; height: 34px; background: var(--accent);
+      border-radius: 8px; display: flex; align-items: center;
+      justify-content: center; color: var(--primary); text-decoration: none;
+      font-size: 0.85rem; transition: background 0.2s;
+    }
+    .team-overlay-links a:hover { background: var(--white); }
+
+    .team-info { padding: 20px; }
+    .team-info h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+    .team-info .role { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+    .team-info .seg-tag {
+      display: inline-block; background: rgba(10,37,64,0.06);
+      color: var(--primary); font-size: 0.73rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 50px; margin: 2px;
+    }
+
+    /* ── ÁREA DO PARCEIRO ── */
+    #area-parceiro {
+      background: var(--light);
+    }
+    .parceiro-hero {
+      background: linear-gradient(135deg, var(--primary), #1a3f6f);
+      border-radius: 20px; padding: 60px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 48px; align-items: center;
+      margin-bottom: 48px;
+    }
+    .parceiro-hero h2 { color: var(--white); font-size: 1.8rem; font-weight: 800; margin-bottom: 14px; }
+    .parceiro-hero p { color: rgba(255,255,255,0.75); line-height: 1.7; margin-bottom: 24px; }
+
+    .parceiro-benefits {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    .benefit-item {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 20px;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .benefit-item:hover { background: rgba(255,255,255,0.12); transform: scale(1.02); }
+    .benefit-item i { font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
+    .benefit-item h4 { color: var(--white); font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
+    .benefit-item p { color: rgba(255,255,255,0.6); font-size: 0.8rem; line-height: 1.5; }
+
+    /* Tabs */
+    .tab-wrapper { }
+    .tab-nav {
+      display: flex; gap: 0; margin-bottom: 32px;
+      border-bottom: 2px solid #e5e7eb; flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 14px 24px; background: none; border: none;
+      font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      color: var(--gray); cursor: pointer; position: relative;
+      transition: color 0.2s;
+    }
+    .tab-btn::after {
+      content: ''; position: absolute; bottom: -2px; left: 0;
+      width: 0; height: 2px; background: var(--accent); transition: width 0.3s;
+    }
+    .tab-btn.active { color: var(--primary); }
+    .tab-btn.active::after { width: 100%; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeInUp 0.4s ease; }
+
+    .modelo-cards {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+    .modelo-card {
+      background: var(--white); border-radius: var(--radius); padding: 32px 24px;
+      border: 1.5px solid #e5e7eb; position: relative; overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    }
+    .modelo-card:hover {
+      border-color: var(--accent); box-shadow: 0 8px 30px rgba(240,165,0,0.1);
+      transform: translateY(-4px);
+    }
+    .modelo-card.destaque {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--primary), #1a3f6f);
+    }
+    .destaque-badge {
+      position: absolute; top: 16px; right: -28px;
+      background: var(--accent); color: var(--primary);
+      font-size: 0.7rem; font-weight: 800; padding: 4px 36px;
+      transform: rotate(45deg); letter-spacing: 1px;
+    }
+    .modelo-card h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; color: var(--primary); }
+    .modelo-card.destaque h3 { color: var(--white); }
+    .modelo-card .modelo-sub { font-size: 0.82rem; color: var(--gray); margin-bottom: 20px; }
+    .modelo-card.destaque .modelo-sub { color: rgba(255,255,255,0.6); }
+    .modelo-card ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .modelo-card ul li {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.87rem; color: var(--dark);
+    }
+    .modelo-card.destaque ul li { color: rgba(255,255,255,0.85); }
+    .modelo-card ul li i { color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+    .faq-item {
+      background: var(--white); border-radius: var(--radius);
+      border: 1.5px solid #e5e7eb; overflow: hidden;
+    }
+    .faq-question {
+      padding: 18px 20px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      font-weight: 600; font-size: 0.95rem; color: var(--primary);
+      transition: background 0.2s;
+    }
+    .faq-question:hover { background: var(--light); }
+    .faq-question i { transition: transform 0.3s; color: var(--accent); }
+    .faq-item.open .faq-question i { transform: rotate(180deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+      font-size: 0.9rem; color: var(--gray); line-height: 1.7;
+      padding: 0 20px;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; padding: 0 20px 18px; }
+
+    .doc-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .doc-card {
+      background: var(--white); border-radius: var(--radius); padding: 24px;
+      border: 1.5px solid #e5e7eb; text-align: center;
+      transition: border-color 0.3s, transform 0.3s;
+      cursor: pointer;
+    }
+    .doc-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .doc-card i { font-size: 2.2rem; color: var(--primary); margin-bottom: 12px; }
+    .doc-card h4 { font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+    .doc-card p { font-size: 0.78rem; color: var(--gray); }
+
+    /* ── PARCERIA CTA ── */
+    #parceria {
+      background: linear-gradient(135deg, var(--primary) 0%, #1a3f6f 100%);
+      text-align: center; padding: 100px 6%;
+    }
+    #parceria .section-title { color: var(--white); }
+    #parceria .section-sub { color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto 40px; }
+
+    .parceria-cards {
+      display: flex; gap: 24px; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 48px;
+    }
+    .p-card {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius); padding: 24px 28px;
+      text-align: left; max-width: 260px;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .p-card:hover { background: rgba(255,255,255,0.12); transform: translateY(-4px); }
+    .p-card i { font-size: 1.6rem; color: var(--accent); margin-bottom: 12px; }
+    .p-card h4 { color: var(--white); font-size: 0.95rem; margin-bottom: 6px; }
+    .p-card p { font-size: 0.82rem; color: rgba(255,255,255,0.6); line-height: 1.6; }
+
+    /* ── CONTATO ── */
+    #contato { background: var(--light); }
+
+    .contato-grid {
+      display: grid; grid-template-columns: 1fr 1.4fr;
+      gap: 60px; align-items: start;
+    }
+    .contato-info h3 { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin-bottom: 16px; }
+    .contato-info p { font-size: 0.92rem; color: var(--gray); line-height: 1.7; margin-bottom: 28px; }
+
+    .contact-item {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+    }
+    .contact-item i {
+      width: 42px; height: 42px; background: var(--primary); color: var(--accent);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .contact-item span { font-size: 0.9rem; color: var(--dark); font-weight: 500; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--primary); margin-bottom: 6px; }
+    input, select, textarea {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #d1d5db;
+      border-radius: 8px; font-family: inherit; font-size: 0.9rem;
+      color: var(--dark); background: var(--white); transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(240,165,0,0.15);
+    }
+    textarea { resize: vertical; min-height: 120px; }
+    .btn-submit {
+      width: 100%; background: var(--primary); color: var(--white);
+      border: none; padding: 14px; border-radius: var(--radius);
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: background 0.2s, transform 0.2s; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover { background: #1a3f6f; transform: translateY(-2px); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: var(--primary); color: var(--white);
+      padding: 14px 20px; border-radius: var(--radius);
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transform: translateY(100px); opacity: 0;
+      transition: transform 0.4s, opacity 0.4s;
+      font-size: 0.9rem; font-weight: 500;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast i { color: var(--accent); font-size: 1.1rem; }
+
+    /* ── FOOTER ── */
+    footer { background: var(--dark); padding: 60px 6% 30px; color: rgba(255,255,255,0.6); }
+    .footer-grid {
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px; margin-bottom: 48px;
+    }
+    .footer-brand p { font-size: 0.85rem; margin-top: 14px; line-height: 1.7; max-width: 240px; }
+    .footer-col h4 { color: var(--white); font-size: 0.9rem; font-weight: 700; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul li a {
+      color: rgba(255,255,255,0.55); text-decoration: none;
+      font-size: 0.85rem; transition: color 0.2s;
+    }
+    .footer-col ul li a:hover { color: var(--accent); }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .footer-bottom p { font-size: 0.82rem; }
+    .social-links { display: flex; gap: 12px; }
+    .social-links a {
+      width: 36px; height: 36px; background: rgba(255,255,255,0.07);
+      border-radius: 8px; display: flex; align-items: center;
+      justify-content: center; color: rgba(255,255,255,0.6);
+      text-decoration: none; transition: background 0.2s, color 0.2s, transform 0.2s;
+    }
+    .social-links a:hover { background: var(--accent); color: var(--primary); transform: translateY(-2px); }
+
+    /* ── RESPONSIVO ── */
+    @media (max-width: 900px) {
+      .sobre-grid, .contato-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .parceiro-hero { grid-template-columns: 1fr; padding: 36px; }
+    }
+    @media (max-width: 600px) {
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      .parceria-cards { flex-direction: column; align-items: center; }
+      .parceiro-benefits { grid-template-columns: 1fr; }
+      section { padding: 70px 5%; }
+    }
+
+    /* ── SCROLL TO TOP ── */
+    .scroll-top {
+      position: fixed; bottom: 24px; left: 24px; z-index: 999;
+      width: 44px; height: 44px; background: var(--accent);
+      color: var(--primary); border: none; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1rem;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+      box-shadow: 0 4px 16px rgba(240,165,0,0.4);
+    }
+    .scroll-top.show { opacity: 1; transform: translateY(0); }
+    .scroll-top:hover { background: var(--primary); color: var(--accent); }
+
+    /* WhatsApp float */
+    .whatsapp-float {
+      position: fixed; bottom: 76px; left: 24px; z-index: 999;
+      width: 44px; height: 44px; background: #25d366;
+      color: white; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; text-decoration: none;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+      transition: transform 0.3s;
+    }
+    .whatsapp-float:hover { transform: scale(1.1); }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav id="navbar">
+  <a href="#hero" class="logo">
+    <div class="logo-icon">N</div>
+    <span class="logo-text">Nexo<span>Bridge</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#segmentos">Segmentos</a></li>
+    <li><a href="#como-funciona">Como Funciona</a></li>
+    <li><a href="#equipe">Equipe</a></li>
+    <li><a href="#area-parceiro">Área do Parceiro</a></li>
+    <li><a href="#contato" class="nav-cta">Seja Parceiro</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#sobre" onclick="closeMenu()">Sobre</a>
+  <a href="#segmentos" onclick="closeMenu()">Segmentos</a>
+  <a href="#como-funciona" onclick="closeMenu()">Como Funciona</a>
+  <a href="#equipe" onclick="closeMenu()">Equipe</a>
+  <a href="#area-parceiro" onclick="closeMenu()">Área do Parceiro</a>
+  <a href="#contato" onclick="closeMenu()">Seja Parceiro →</a>
+</div>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-particles" id="particles"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <i class="fa-solid fa-handshake"></i>
+      Intermediação Estratégica de Negócios — São Paulo, SP
+    </div>
+    <h1>Conectamos <span>negócios</span> ao seu próximo nível</h1>
+    <p>A NexoBridge é especialista em representação comercial multissegmento. Com sede em São Paulo, levamos seus produtos e serviços diretamente a quem decide — com inteligência, relacionamento e resultado.</p>
+    <div class="hero-btns">
+      <a href="#parceria" class="btn-primary">
+        <i class="fa-solid fa-handshake"></i> Quero ser parceiro
+      </a>
+      <a href="#como-funciona" class="btn-outline">
+        <i class="fa-solid fa-play"></i> Como funciona
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-number" data-target="1200">0</div>
+        <div class="stat-label">Clientes ativos</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" data-target="12">0</div>
+        <div class="stat-label">Segmentos atuantes</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" data-target="8">0</div>
+        <div class="stat-label">Anos de mercado</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" data-target="95">0</div>
+        <div class="stat-label">% Taxa de retenção</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SOBRE ── -->
+<section id="sobre">
+  <div class="sobre-grid">
+    <div class="sobre-img reveal-left">
+      <div class="sobre-img-inner">
+        <div class="sobre-card">
+          <i class="fa-solid fa-network-wired"></i>
+          <p>Rede nacional de representantes</p>
+        </div>
+        <div class="sobre-card">
+          <i class="fa-solid fa-chart-line"></i>
+          <p>Crescimento consistente</p>
+        </div>
+        <div class="sobre-card">
+          <i class="fa-solid fa-shield-halved"></i>
+          <p>Parcerias seguras e duradouras</p>
+        </div>
+        <div class="sobre-card">
+          <i class="fa-solid fa-globe"></i>
+          <p>Atuação em todo o Brasil</p>
+        </div>
+      </div>
+    </div>
+    <div class="sobre-text reveal-right">
+      <span class="section-tag">Quem somos</span>
+      <h2 class="section-title">Mais de 8 anos conectando mercados</h2>
+      <p class="section-sub">A NexoBridge nasceu da visão de que boas empresas merecem os melhores canais. Somos uma plataforma de representação comercial com sede em São Paulo que une equipe especializada a uma carteira consolidada de compradores e decisores em todo o Brasil.</p>
+      <ul>
+        <li><i class="fa-solid fa-check"></i> Equipe multissegmento com expertise em diferentes mercados</li>
+        <li><i class="fa-solid fa-check"></i> Carteira com +1.200 clientes ativos e relacionamentos sólidos</li>
+        <li><i class="fa-solid fa-check"></i> Processos ágeis, do primeiro contato ao fechamento</li>
+        <li><i class="fa-solid fa-check"></i> Modelo de parceria transparente e orientado a resultados</li>
+        <li><i class="fa-solid fa-check"></i> Presença em mais de 20 estados brasileiros</li>
+      </ul>
+      <div class="sp-badge">
+        <i class="fa-solid fa-location-dot"></i>
+        Sede: São Paulo – SP | Atuação Nacional
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEGMENTOS ── -->
+<section id="segmentos">
+  <div class="section-header reveal">
+    <span class="section-tag">Áreas de atuação</span>
+    <h2 class="section-title">Segmentos que dominamos</h2>
+    <p class="section-sub">Nossa equipe tem know-how real em cada área. Cada representante atua no segmento onde tem histórico e relacionamento.</p>
+  </div>
+  <div class="segmentos-grid">
+    <div class="seg-card reveal delay-1">
+      <div class="seg-icon"><i class="fa-solid fa-industry"></i></div>
+      <h3>Aço & Ferro</h3>
+      <p>Representação junto a distribuidoras, construtoras e indústrias. Negociamos volumes e condições diferenciadas.</p>
+    </div>
+    <div class="seg-card reveal delay-2">
+      <div class="seg-icon"><i class="fa-solid fa-wheat-awn"></i></div>
+      <h3>Alimentos</h3>
+      <p>Produtos alimentícios para o varejo, food service, redes de supermercados e distribuição regional.</p>
+    </div>
+    <div class="seg-card reveal delay-3">
+      <div class="seg-icon"><i class="fa-solid fa-shirt"></i></div>
+      <h3>Confecção & Moda</h3>
+      <p>Marcas, coleções e matéria-prima para o varejo de moda, lojas multimarcas e e-commerce.</p>
+    </div>
+    <div class="seg-card reveal delay-4">
+      <div class="seg-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+      <h3>Crédito & Financeiro</h3>
+      <p>Soluções de crédito, consórcios, seguros e produtos financeiros para PF e PJ.</p>
+    </div>
+    <div class="seg-card reveal delay-5">
+      <div class="seg-icon"><i class="fa-solid fa-hard-hat"></i></div>
+      <h3>Construção Civil</h3>
+      <p>Materiais, equipamentos e serviços para obras, reformas e incorporadoras.</p>
+    </div>
+    <div class="seg-card reveal delay-6">
+      <div class="seg-icon"><i class="fa-solid fa-bolt"></i></div>
+      <h3>Energia & Utilidades</h3>
+      <p>Energia solar, eficiência energética e soluções para redução de custos operacionais.</p>
+    </div>
+    <div class="seg-card reveal delay-1">
+      <div class="seg-icon"><i class="fa-solid fa-pills"></i></div>
+      <h3>Saúde & Farmácia</h3>
+      <p>Produtos hospitalares, suplementos, dermocosméticos e equipamentos médicos.</p>
+    </div>
+    <div class="seg-card reveal delay-2">
+      <div class="seg-icon"><i class="fa-solid fa-laptop"></i></div>
+      <h3>Tecnologia</h3>
+      <p>Software, hardware, serviços de TI e soluções digitais para empresas de todos os portes.</p>
+    </div>
+    <div class="seg-card reveal delay-3">
+      <div class="seg-icon"><i class="fa-solid fa-truck-fast"></i></div>
+      <h3>Logística & Transporte</h3>
+      <p>Serviços de frete, armazenagem e soluções integradas de supply chain.</p>
+    </div>
+    <div class="seg-card reveal delay-4">
+      <div class="seg-icon"><i class="fa-solid fa-leaf"></i></div>
+      <h3>Agronegócio</h3>
+      <p>Insumos, maquinário e serviços para produtores rurais e cooperativas agrícolas.</p>
+    </div>
+    <div class="seg-card reveal delay-5">
+      <div class="seg-icon"><i class="fa-solid fa-paint-roller"></i></div>
+      <h3>Higiene & Limpeza</h3>
+      <p>Produtos de limpeza profissional e higiene pessoal para redes e distribuidores.</p>
+    </div>
+    <div class="seg-card reveal delay-6">
+      <div class="seg-icon"><i class="fa-solid fa-plug"></i></div>
+      <h3>Material Elétrico</h3>
+      <p>Componentes, instalações e automação para indústria, comércio e construção.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── COMO FUNCIONA ── -->
+<section id="como-funciona">
+  <div class="section-header reveal">
+    <span class="section-tag">Processo</span>
+    <h2 class="section-title">Como funciona a parceria</h2>
+    <p class="section-sub">Do primeiro contato ao resultado, um processo simples, transparente e focado em gerar negócios reais.</p>
+  </div>
+  <div class="steps">
+    <div class="step reveal delay-1">
+      <div class="step-num">01</div>
+      <h3>Contato Inicial</h3>
+      <p>Você nos apresenta sua empresa, seus produtos ou serviços e os objetivos comerciais que deseja alcançar.</p>
+    </div>
+    <div class="step reveal delay-2">
+      <div class="step-num">02</div>
+      <h3>Análise de Fit</h3>
+      <p>Avaliamos o alinhamento da sua oferta com nossa carteira e definimos a estratégia ideal de representação.</p>
+    </div>
+    <div class="step reveal delay-3">
+      <div class="step-num">03</div>
+      <h3>Proposta de Parceria</h3>
+      <p>Apresentamos modelo comercial claro: regiões, metas, comissionamentos e indicadores de performance.</p>
+    </div>
+    <div class="step reveal delay-4">
+      <div class="step-num">04</div>
+      <h3>Ativação & Prospecção</h3>
+      <p>Nossa equipe entra em campo, ativando os clientes mais aderentes ao perfil do seu produto.</p>
+    </div>
+    <div class="step reveal delay-5">
+      <div class="step-num">05</div>
+      <h3>Acompanhamento</h3>
+      <p>Relatórios periódicos, reuniões de alinhamento e gestão ativa do pipeline para maximizar resultados.</p>
+    </div>
+    <div class="step reveal delay-6">
+      <div class="step-num">06</div>
+      <h3>Resultado & Escala</h3>
+      <p>Com os primeiros resultados, escalamos a operação e expandimos para novas regiões e segmentos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── EQUIPE ── -->
+<section id="equipe">
+  <div class="section-header reveal">
+    <span class="section-tag">Nossa equipe</span>
+    <h2 class="section-title">Quem faz acontecer</h2>
+    <p class="section-sub">Representantes experientes, com histórico comprovado e relacionamentos consolidados em seus mercados.</p>
+  </div>
+  <div class="team-grid">
+
+    <div class="team-card reveal delay-1">
+      <div class="team-avatar">
+        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face" alt="Ricardo Fonseca"/>
+        <div class="team-overlay">
+          <div class="team-overlay-links">
+            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="team-info">
+        <h3>Ricardo Fonseca</h3>
+        <div class="role">Sócio-fundador & Diretor Comercial</div>
+        <span class="seg-tag">Aço & Ferro</span>
+        <span class="seg-tag">Construção Civil</span>
+      </div>
+    </div>
+
+    <div class="team-card reveal delay-2">
+      <div class="team-avatar">
+        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=face" alt="Adriana Melo"/>
+        <div class="team-overlay">
+          <div class="team-overlay-links">
+            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="team-info">
+        <h3>Adriana Melo</h3>
+        <div class="role">Sócia & Gestora de Parcerias</div>
+        <span class="seg-tag">Crédito & Financeiro</span>
+        <span class="seg-tag">Saúde</span>
+      </div>
+    </div>
+
+    <div class="team-card reveal delay-3">
+      <div class="team-avatar">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face" alt="Thiago Saraiva"/>
+        <div class="team-overlay">
+          <div class="team-overlay-links">
+            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="team-info">
+        <h3>Thiago Saraiva</h3>
+        <div class="role">Representante Sênior</div>
+        <span class="seg-tag">Alimentos</span>
+        <span class="seg-tag">Agronegócio</span>
+      </div>
+    </div>
+
+    <div class="team-card reveal delay-4">
+      <div class="team-avatar">
+        <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face" alt="Camila Brandão"/>
+        <div class="team-overlay">
+          <div class="team-overlay-links">
+            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="team-info">
+        <h3>Camila Brandão</h3>
+        <div class="role">Representante Sênior</div>
+        <span class="seg-tag">Confecção & Moda</span>
+        <span class="seg-tag">Higiene & Limpeza</span>
+      </div>
+    </div>
+
+    <div class="team-card reveal delay-5">
+      <div class="team-avatar">
+        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Fernando Lima"/>
+        <div class="team-overlay">
+          <div class="team-overlay-links">
+            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="team-info">
+        <h3>Fernando Lima</h3>
+        <div class="role">Representante Pleno</div>
+        <span class="seg-tag">Energia</span>
+        <span class="seg-tag">Material Elétrico</span>
+      </div>
+    </div>
+
+    <div class="team-card reveal delay-6">
+      <div class="team-avatar">
+        <img src="https://images.unsplash.com/photo-1598550880863-4e8aa3d0edb4?w=400&h=400&fit=crop&crop=face" alt="Patrícia Oliveira"/>
+        <div class="team-overlay">
+          <div class="team-overlay-links">
+            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="team-info">
+        <h3>Patrícia Oliveira</h3>
+        <div class="role">Representante Pleno</div>
+        <span class="seg-tag">Tecnologia</span>
+        <span class="seg-tag">Logística</span>
+      </div>
+    </div>
+
+    <div class="team-card reveal delay-1">
+      <div class="team-avatar">
+        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face" alt="Marcos Ribeiro"/>
+        <div class="team-overlay">
+          <div class="team-overlay-links">
+            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="team-info">
+        <h3>Marcos Ribeiro</h3>
+        <div class="role">Representante Pleno</div>
+        <span class="seg-tag">Construção Civil</span>
+        <span class="seg-tag">Material Elétrico</span>
+      </div>
+    </div>
+
+    <div class="team-card reveal delay-2">
+      <div class="team-avatar">
+        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face" alt="Juliana Costa"/>
+        <div class="team-overlay">
+          <div class="team-overlay-links">
+            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="team-info">
+        <h3>Juliana Costa</h3>
+        <div class="role">Analista de Negócios</div>
+        <span class="seg-tag">Crédito & Financeiro</span>
+        <span class="seg-tag">Saúde</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── ÁREA DO PARCEIRO ── -->
+<section id="area-parceiro">
+  <div class="section-header reveal">
+    <span class="section-tag">Área do Parceiro</span>
+    <h2 class="section-title">Tudo que você precisa saber para ser nosso parceiro</h2>
+    <p class="section-sub">Entenda os modelos de parceria, benefícios, documentação necessária e tire suas principais dúvidas.</p>
+  </div>
+
+  <div class="parceiro-hero reveal">
+    <div>
+      <h2>Por que escolher a NexoBridge como sua representante?</h2>
+      <p>Você tem um produto ou serviço excelente, mas precisa de canal. Nós temos o canal — e o relacionamento para fazer acontecer. Sem burocracia, sem montagem de equipe própria, sem custo fixo elevado.</p>
+      <a href="#contato" class="btn-primary">
+        <i class="fa-solid fa-paper-plane"></i> Quero ser representado
+      </a>
+    </div>
+    <div class="parceiro-benefits">
+      <div class="benefit-item">
+        <i class="fa-solid fa-users-gear"></i>
+        <h4>Equipe especializada</h4>
+        <p>Representantes com know-how real no seu segmento</p>
+      </div>
+      <div class="benefit-item">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <h4>Cobertura nacional</h4>
+        <p>Presença ativa em mais de 20 estados brasileiros</p>
+      </div>
+      <div class="benefit-item">
+        <i class="fa-solid fa-file-contract"></i>
+        <h4>Contrato transparente</h4>
+        <p>Modelo claro, sem taxas ocultas ou letras miúdas</p>
+      </div>
+      <div class="benefit-item">
+        <i class="fa-solid fa-chart-bar"></i>
+        <h4>Relatórios periódicos</h4>
+        <p>Visibilidade total do pipeline e das ações em campo</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-wrapper reveal">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="openTab(event, 'modelos')">Modelos de Parceria</button>
+      <button class="tab-btn" onclick="openTab(event, 'docs')">Documentação</button>
+      <button class="tab-btn" onclick="openTab(event, 'faq')">Perguntas Frequentes</button>
+    </div>
+
+    <!-- Tab: Modelos -->
+    <div class="tab-content active" id="modelos">
+      <div class="modelo-cards">
+        <div class="modelo-card">
+          <h3>Representação Básica</h3>
+          <p class="modelo-sub">Ideal para empresas que estão iniciando expansão comercial</p>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> 1 segmento de atuação</li>
+            <li><i class="fa-solid fa-check"></i> Cobertura regional (até 3 estados)</li>
+            <li><i class="fa-solid fa-check"></i> 1 representante dedicado</li>
+            <li><i class="fa-solid fa-check"></i> Relatório mensal</li>
+            <li><i class="fa-solid fa-check"></i> Comissão sobre vendas fechadas</li>
+          </ul>
+        </div>
+        <div class="modelo-card destaque">
+          <div class="destaque-badge">MAIS POPULAR</div>
+          <h3>Representação Plena</h3>
+          <p class="modelo-sub">Para empresas que querem crescimento acelerado</p>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> Até 3 segmentos de atuação</li>
+            <li><i class="fa-solid fa-check"></i> Cobertura nacional</li>
+            <li><i class="fa-solid fa-check"></i> Equipe multirrepresentante</li>
+            <li><i class="fa-solid fa-check"></i> Relatório quinzenal + dashboard</li>
+            <li><i class="fa-solid fa-check"></i> Gestão ativa de pipeline</li>
+            <li><i class="fa-solid fa-check"></i> Reunião mensal de alinhamento</li>
+          </ul>
+        </div>
+        <div class="modelo-card">
+          <h3>Parceria Estratégica</h3>
+          <p class="modelo-sub">Para empresas com grande volume e ambição de mercado</p>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> Segmentos ilimitados</li>
+            <li><i class="fa-solid fa-check"></i> Cobertura nacional + exportação</li>
+            <li><i class="fa-solid fa-check"></i> Equipe exclusiva</li>
+            <li><i class="fa-solid fa-check"></i> Relatório semanal + BI</li>
+            <li><i class="fa-solid fa-check"></i> Account Manager dedicado</li>
+            <li><i class="fa-solid fa-check"></i> Participação em feiras e eventos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Docs -->
+    <div class="tab-content" id="docs">
+      <p style="color:var(--gray);margin-bottom:28px;font-size:0.95rem;">Para iniciar o processo de parceria, tenha em mãos os documentos abaixo. Nossa equipe orientará em cada etapa:</p>
+      <div class="doc-grid">
+        <div class="doc-card">
+          <i class="fa-solid fa-file-lines"></i>
+          <h4>Contrato Social</h4>
+          <p>Documento de constituição da empresa</p>
+        </div>
+        <div class="doc-card">
+          <i class="fa-solid fa-id-card"></i>
+          <h4>CNPJ & Inscrição Estadual</h4>
+          <p>Cartão CNPJ atualizado nos últimos 30 dias</p>
+        </div>
+        <div class="doc-card">
+          <i class="fa-solid fa-box-open"></i>
+          <h4>Catálogo de Produtos</h4>
+          <p>Portfólio completo com preços e condições</p>
+        </div>
+        <div class="doc-card">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <h4>Tabela Comercial</h4>
+          <p>Margens, descontos e política de preços</p>
+        </div>
+        <div class="doc-card">
+          <i class="fa-solid fa-certificate"></i>
+          <h4>Certificações & Laudos</h4>
+          <p>Documentos técnicos do produto (quando aplicável)</p>
+        </div>
+        <div class="doc-card">
+          <i class="fa-solid fa-handshake"></i>
+          <h4>Termo de Representação</h4>
+          <p>Assinado digitalmente após aprovação</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: FAQ -->
+    <div class="tab-content" id="faq">
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Quanto tempo leva para iniciar a representação?
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">Após a assinatura do contrato, nossa equipe é briefada e entra em campo em até 5 dias úteis. O processo de análise e proposta leva em média de 3 a 7 dias após o primeiro contato.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Como funciona o modelo de remuneração?
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">Trabalhamos com comissão sobre vendas efetivamente fechadas. O percentual é acordado em contrato e varia por segmento e volume esperado. Não cobramos taxas fixas mensais no modelo básico.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            A NexoBridge atua em todo o Brasil?
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">Sim. Com sede em São Paulo, temos representantes ativos em mais de 20 estados brasileiros. Dependendo do segmento e modelo contratado, cobrimos desde regiões específicas até cobertura nacional completa.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Posso ter exclusividade de representação no meu segmento?
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">Em alguns segmentos sim, a exclusividade pode ser negociada. Isso é avaliado caso a caso, considerando volume esperado, abrangência geográfica e termos do contrato de parceria estratégica.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Qual o prazo mínimo de contrato?
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">O contrato padrão tem vigência de 12 meses, com possibilidade de renovação automática. Para parceria estratégica, trabalhamos com prazos de 24 meses para garantir maturidade da operação.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Recebo relatórios das ações de venda?
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">Sim, todos os parceiros recebem relatórios periódicos com detalhamento de prospecções, reuniões realizadas, propostas enviadas e status do pipeline. A frequência varia conforme o modelo contratado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PARCERIA CTA ── -->
+<section id="parceria">
+  <span class="section-tag" style="background:rgba(240,165,0,0.15);border-color:rgba(240,165,0,0.3);">Por que a NexoBridge?</span>
+  <h2 class="section-title" style="color:var(--white);margin-bottom:14px;">Pronto para expandir suas vendas?</h2>
+  <p class="section-sub">Seja um parceiro representado pela NexoBridge e acesse uma rede de relacionamentos construída ao longo de 8 anos — sem precisar montar uma força de vendas do zero.</p>
+  <div class="parceria-cards">
+    <div class="p-card reveal delay-1">
+      <i class="fa-solid fa-users"></i>
+      <h4>Carteira consolidada</h4>
+      <p>Acesse mais de 1.200 clientes ativos com relacionamentos já estabelecidos.</p>
+    </div>
+    <div class="p-card reveal delay-2">
+      <i class="fa-solid fa-rocket"></i>
+      <h4>Velocidade de mercado</h4>
+      <p>Chegue ao seu público-alvo em semanas. Nossa equipe já sabe onde bater.</p>
+    </div>
+    <div class="p-card reveal delay-3">
+      <i class="fa-solid fa-chart-pie"></i>
+      <h4>Modelo performance</h4>
+      <p>Trabalhamos orientados a resultado. Você paga pela performance gerada.</p>
+    </div>
+  </div>
+  <a href="#contato" class="btn-primary" style="font-size:1rem;padding:16px 36px;">
+    Entrar em contato agora <i class="fa-solid fa-arrow-right"></i>
+  </a>
+</section>
+
+<!-- ── CONTATO ── -->
+<section id="contato">
+  <div class="contato-grid">
+    <div class="contato-info reveal-left">
+      <span class="section-tag">Fale conosco</span>
+      <h3>Vamos conversar sobre seu negócio</h3>
+      <p>Preencha o formulário e um especialista entrará em contato em até 24 horas úteis. Estamos em São Paulo e atendemos todo o Brasil.</p>
+      <div class="contact-item">
+        <i class="fa-solid fa-phone"></i>
+        <span>(11) 99800-1234</span>
+      </div>
+      <div class="contact-item">
+        <i class="fa-solid fa-envelope"></i>
+        <span>contato@nexobridge.com.br</span>
+      </div>
+      <div class="contact-item">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span>(11) 99800-1234 — WhatsApp</span>
+      </div>
+      <div class="contact-item">
+        <i class="fa-solid fa-location-dot"></i>
+        <span>Av. Paulista, 1000 — Bela Vista, São Paulo – SP</span>
+      </div>
+    </div>
+    <form id="contactForm" class="reveal-right" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome completo *</label>
+          <input type="text" placeholder="Seu nome" required/>
+        </div>
+        <div class="form-group">
+          <label>Empresa *</label>
+          <input type="text" placeholder="Nome da empresa" required/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>E-mail *</label>
+          <input type="email" placeholder="seu@email.com" required/>
+        </div>
+        <div class="form-group">
+          <label>WhatsApp *</label>
+          <input type="tel" placeholder="(11) 99999-9999" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Segmento de interesse *</label>
+        <select required>
+          <option value="">Selecione o segmento...</option>
+          <option>Aço & Ferro</option>
+          <option>Alimentos</option>
+          <option>Confecção & Moda</option>
+          <option>Crédito & Financeiro</option>
+          <option>Construção Civil</option>
+          <option>Energia & Utilidades</option>
+          <option>Saúde & Farmácia</option>
+          <option>Tecnologia</option>
+          <option>Logística & Transporte</option>
+          <option>Agronegócio</option>
+          <option>Higiene & Limpeza</option>
+          <option>Material Elétrico</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Mensagem *</label>
+        <textarea placeholder="Conte um pouco sobre seu produto/serviço e o que espera da parceria..." required></textarea>
+      </div>
+      <button type="submit" class="btn-submit">
+        <i class="fa-solid fa-paper-plane"></i> Enviar mensagem
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#hero" class="logo">
+        <div class="logo-icon" style="animation:none;">N</div>
+        <span class="logo-text">Nexo<span>Bridge</span></span>
+      </a>
+      <p>Conectando empresas a oportunidades reais, com relacionamento, estratégia e resultado. Sede em São Paulo – SP.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navegação</h4>
+      <ul>
+        <li><a href="#sobre">Sobre nós</a></li>
+        <li><a href="#segmentos">Segmentos</a></li>
+        <li><a href="#como-funciona">Como funciona</a></li>
+        <li><a href="#equipe">Equipe</a></li>
+        <li><a href="#area-parceiro">Área do Parceiro</a></li>
+        <li><a href="#contato">Contato</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Segmentos</h4>
+      <ul>
+        <li><a href="#segmentos">Aço & Ferro</a></li>
+        <li><a href="#segmentos">Alimentos</a></li>
+        <li><a href="#segmentos">Crédito & Financeiro</a></li>
+        <li><a href="#segmentos">Confecção & Moda</a></li>
+        <li><a href="#segmentos">Energia & Utilidades</a></li>
+        <li><a href="#segmentos">Tecnologia</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contato</h4>
+      <ul>
+        <li><a href="tel:+5511998001234">(11) 99800-1234</a></li>
+        <li><a href="mailto:contato@nexobridge.com.br">contato@nexobridge.com.br</a></li>
+        <li><a href="#">Av. Paulista, 1000 – SP</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Instagram</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 NexoBridge Intermediação de Negócios. Todos os direitos reservados. São Paulo – SP.</p>
+    <div class="social-links">
+      <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+      <a href="#"><i class="fa-brands fa-instagram"></i></a>
+      <a href="#"><i class="fa-brands fa-whatsapp"></i></a>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <i class="fa-solid fa-circle-check"></i>
+  Mensagem enviada! Entraremos em contato em breve.
+</div>
+
+<!-- Scroll Top -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <i class="fa-solid fa-arrow-up"></i>
+</button>
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/5511998001234" class="whatsapp-float" target="_blank" title="Fale no WhatsApp">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<script>
+  // ── Hamburger ──
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  function closeMenu() {
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+  }
+
+  // ── Navbar scroll ──
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 400);
+  });
+
+  // ── Reveal on scroll ──
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // ── Counter animation ──
+  const counters = document.querySelectorAll('.stat-number[data-target]');
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.getAttribute('data-target'));
+        const suffix = target === 95 ? '%' : target === 1200 ? '+' : '';
+        const prefix = target === 1200 ? '+' : '';
+        let count = 0;
+        const step = Math.ceil(target / 60);
+        const timer = setInterval(() => {
+          count = Math.min(count + step, target);
+          el.textContent = (target === 1200 ? '+' : '') + count + (target === 95 ? '%' : '');
+          if (count >= target) clearInterval(timer);
+        }, 28);
+        counterObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => counterObserver.observe(c));
+
+  // ── Particles ──
+  const particlesContainer = document.getElementById('particles');
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    const size = Math.random() * 80 + 20;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      animation-duration:${Math.random()*8+5}s;
+      animation-delay:${Math.random()*4}s;
+      opacity:${Math.random()*0.15+0.03};
+    `;
+    particlesContainer.appendChild(p);
+  }
+
+  // ── Tabs ──
+  function openTab(evt, tabId) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    evt.currentTarget.classList.add('active');
+  }
+
+  // ── FAQ ──
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ── Form submit ──
+  function handleSubmit(e) {
+    e.preventDefault();
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    e.target.reset();
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+</script>
+</body>
+</html>
